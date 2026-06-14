@@ -6,7 +6,8 @@ from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import mlflow
 import mlflow.sklearn
-from huggingface_hub import HfApi, create_repo, RepositoryNotFoundError
+from huggingface_hub import HfApi, create_repo
+from huggingface_hub.utils import RepositoryNotFoundError
 import os
 import joblib
 from sklearn.utils.class_weight import compute_class_weight
