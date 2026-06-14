@@ -6,13 +6,14 @@ from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import mlflow
 import mlflow.sklearn
-from huggingface_hub import HfApi
+from huggingface_hub import HfApi, create_repo, RepositoryNotFoundError
 import os
 import joblib
 from sklearn.utils.class_weight import compute_class_weight
 
 # Define constants for the dataset path on Hugging Face
-hf_repo_id = "satishp0879/Tourism-Customer-targetting"
+hf_dataset_repo_id = "satishp0879/tourism-customer-dataset"
+hf_model_repo_id = "satishp0879/tourism-customer-model"
 
 # Initialize Hugging Face API
 api = HfApi(token=os.getenv("HF_TOKEN"))
@@ -20,9 +21,9 @@ api = HfApi(token=os.getenv("HF_TOKEN"))
 # Function to download data from Hugging Face
 def download_from_hf(filename):
     local_path = f"./{filename}"
-    print(f"Attempting to download {filename} from {hf_repo_id}...")
+    print(f"Attempting to download {filename} from {hf_dataset_repo_id}...")
     api.hf_hub_download(
-        repo_id=hf_repo_id,
+        repo_id=hf_dataset_repo_id,
         filename=filename,
         repo_type="dataset",
         local_dir="./",
@@ -198,22 +199,21 @@ with mlflow.start_run():
     print(f"Model saved as artifact at: {model_path}")
 
     # Upload to Hugging Face
-    repo_id = "satishp0879/Tourism-Customer-targetting"
-    repo_type = "model"
+    model_upload_repo_id = hf_model_repo_id # Use the new model repo ID
+    model_upload_repo_type = "model"
 
-    # Step 1: Check if the space exists
+    # Step 1: Check if the model repository exists
     try:
-        api.repo_info(repo_id=repo_id, repo_type=repo_type)
-        print(f"Space '{repo_id}' already exists. Using it.")
+        api.repo_info(repo_id=model_upload_repo_id, repo_type=model_upload_repo_type)
+        print(f"Model repository '{model_upload_repo_id}' already exists. Using it.")
     except RepositoryNotFoundError:
-        print(f"Space '{repo_id}' not found. Creating new space...")
-        create_repo(repo_id=repo_id, repo_type=repo_type, private=False)
-        print(f"Space '{repo_id}' created.")
+        print(f"Model repository '{model_upload_repo_id}' not found. Creating new model repository...")
+        create_repo(repo_id=model_upload_repo_id, repo_type=model_upload_repo_type, private=False)
+        print(f"Model repository '{model_upload_repo_id}' created.")
 
-    # create_repo("churn-model", repo_type="model", private=False)
     api.upload_file(
         path_or_fileobj="Tourism_customer_targetting_best_model_V1.joblib",
         path_in_repo="Tourism_customer_targetting_best_model_V1.joblib",
-        repo_id=repo_id,
-        repo_type=repo_type,
+        repo_id=model_upload_repo_id,
+        repo_type=model_upload_repo_type,
     )

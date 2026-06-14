@@ -4,16 +4,16 @@ from huggingface_hub import hf_hub_download
 import joblib
 import os
 
-# Define the Hugging Face repo details
-repo_id = "satishp0879/Tourism-Customer-targetting"
+# Define the Hugging Face repo details for the model
+model_repo_id = "satishp0879/tourism-customer-model"
 model_filename = "Tourism_customer_targetting_best_model_V1.joblib"
-repo_type = "model" # The model was uploaded to a 'model' type repository
+model_repo_type = "model" # The model was uploaded to a 'model' type repository
 
 # Download and load the model
 try:
     # Ensure HF_TOKEN is available if required by hf_hub_download
     # In HF Spaces, HF_TOKEN might be automatically handled if set as a Space Secret.
-    model_path = hf_hub_download(repo_id=repo_id, filename=model_filename, repo_type=repo_type)
+    model_path = hf_hub_download(repo_id=model_repo_id, filename=model_filename, repo_type=model_repo_type)
     model = joblib.load(model_path)
     st.success("Model loaded successfully from Hugging Face!")
 except Exception as e:
